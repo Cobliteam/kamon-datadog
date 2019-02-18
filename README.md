@@ -44,7 +44,7 @@ Configuration
 #### Agent Reporter
 
 By default, the Agent reporter assumes that you have an instance of the Datadog Agent running in localhost and listening on
-port 8125. If that is not the case the you can use the `kamon.datadog.agent.hostname` and `kamon.datadog.agent.port` configuration
+port 8125. If that is not the case, you can use the `kamon.datadog.agent.hostname` and `kamon.datadog.agent.port` configuration
 keys to point the module at your Datadog Agent installation.
 
 #### API Reporter
@@ -65,10 +65,10 @@ You can refer to the [Datadog documentation](https://docs.datadoghq.com/develope
 
 #### Span Reporter
 As [recommended](https://docs.datadoghq.com/api/?lang=python#tracing) , the Span reporter assumes that you have an instance of the Datadog Agent running in localhost and listening on
-port 8125. If that is not the case the you can use the `kamon.datadog.trace.http.api-url` configuration
+port 8125. If that is not the case, you can use the `kamon.datadog.trace.http.api-url` configuration
 key to point the module at your Datadog Agent installation.
 
-Don't forget to configure [actors filtering for message tracing](https://kamon.io/documentation/1.x/instrumentation/akka/message-tracing/) 
+Don't forget to configure [actors filtering for message tracing](https://kamon.io/docs/latest/instrumentation/akka/tracing/) 
 
 
 ### Metric Units ###
