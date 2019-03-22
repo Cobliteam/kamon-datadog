@@ -56,7 +56,6 @@ class DatadogAgentReporter private[datadog] (c: DatadogAgentReporter.Configurati
   }
 
   override def reportPeriodSnapshot(snapshot: PeriodSnapshot): Unit = {
-
     for (counter <- snapshot.metrics.counters) {
       config.packetBuffer.appendMeasurement(counter.name, config.measurementFormatter.formatMeasurement(encodeDatadogCounter(counter.value, counter.unit), counter.tags))
     }
@@ -69,13 +68,21 @@ class DatadogAgentReporter private[datadog] (c: DatadogAgentReporter.Configurati
       metric <- snapshot.metrics.histograms ++ snapshot.metrics.rangeSamplers;
       bucket <- metric.distribution.bucketsIterator
     ) {
-
       val bucketData = config.measurementFormatter.formatMeasurement(encodeDatadogHistogramBucket(bucket.value, bucket.frequency, metric.unit), metric.tags)
       config.packetBuffer.appendMeasurement(metric.name, bucketData)
+
+      val encodedDistributions = encodeDatadogDistribution(bucket.value, bucket.frequency, metric.unit)
+
+      encodedDistributions.foreach {
+        encodedDistribution =>
+          val distributionData = config.measurementFormatter.formatMeasurement(encodedDistribution, metric.tags)
+          metric.tags
+
+          config.packetBuffer.appendMeasurement(metric.name + ".distribution", distributionData)
+      }
     }
 
     config.packetBuffer.flush()
-
   }
 
   private def encodeDatadogHistogramBucket(value: Long, frequency: Long, unit: MeasurementUnit): String = {
@@ -89,6 +96,13 @@ class DatadogAgentReporter private[datadog] (c: DatadogAgentReporter.Configurati
 
   private def encodeDatadogGauge(value: Long, unit: MeasurementUnit): String =
     valueFormat.format(scale(value, unit)) + "|g"
+
+  private def encodeDatadogDistribution(value: Long, frequency: Long, unit: MeasurementUnit): Seq[String] = {
+    val metricType = "|d"
+
+    val formattedValue = scale(value, unit) + metricType
+    (0L until frequency).map(_ => formattedValue)
+  }
 
   private def scale(value: Long, unit: MeasurementUnit): Double = unit.dimension match {
     case Time if unit.magnitude != time.seconds.magnitude             => MeasurementUnit.scale(value, unit, time.seconds)
