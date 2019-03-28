@@ -72,10 +72,15 @@ class DatadogAgentReporter private[datadog] (c: DatadogAgentReporter.Configurati
 
       val bucketData = config.measurementFormatter.formatMeasurement(encodeDatadogHistogramBucket(bucket.value, bucket.frequency, metric.unit), metric.tags)
       config.packetBuffer.appendMeasurement(metric.name, bucketData)
+
+      val encodedDistribution = encodeDatadogDistribution(bucket.value, bucket.frequency, metric.unit)
+      val distributionData = config.measurementFormatter.formatMeasurement(encodedDistribution, metric.tags)
+
+      config.packetBuffer.appendMeasurement(metric.name + ".distribution", distributionData)
     }
 
     config.packetBuffer.flush()
-
+    
   }
 
   private def encodeDatadogHistogramBucket(value: Long, frequency: Long, unit: MeasurementUnit): String = {
@@ -89,6 +94,14 @@ class DatadogAgentReporter private[datadog] (c: DatadogAgentReporter.Configurati
 
   private def encodeDatadogGauge(value: Long, unit: MeasurementUnit): String =
     valueFormat.format(scale(value, unit)) + "|g"
+
+  private def encodeDatadogDistribution(value: Long, frequency: Long, unit: MeasurementUnit): String = {
+    val scaledValue = scale(value, unit)
+    val metricType = "|d"
+    val samplingRate: Double = 1D / frequency.toDouble
+
+    scaledValue + metricType + (if (samplingRate != 1D) "|@" + samplingRateFormat.format(samplingRate) else "")
+  }
 
   private def scale(value: Long, unit: MeasurementUnit): Double = unit.dimension match {
     case Time if unit.magnitude != time.seconds.magnitude             => MeasurementUnit.scale(value, unit, time.seconds)
