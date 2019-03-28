@@ -56,6 +56,7 @@ class DatadogAgentReporter private[datadog] (c: DatadogAgentReporter.Configurati
   }
 
   override def reportPeriodSnapshot(snapshot: PeriodSnapshot): Unit = {
+
     for (counter <- snapshot.metrics.counters) {
       config.packetBuffer.appendMeasurement(counter.name, config.measurementFormatter.formatMeasurement(encodeDatadogCounter(counter.value, counter.unit), counter.tags))
     }
@@ -68,6 +69,7 @@ class DatadogAgentReporter private[datadog] (c: DatadogAgentReporter.Configurati
       metric <- snapshot.metrics.histograms ++ snapshot.metrics.rangeSamplers;
       bucket <- metric.distribution.bucketsIterator
     ) {
+
       val bucketData = config.measurementFormatter.formatMeasurement(encodeDatadogHistogramBucket(bucket.value, bucket.frequency, metric.unit), metric.tags)
       config.packetBuffer.appendMeasurement(metric.name, bucketData)
 
@@ -78,6 +80,7 @@ class DatadogAgentReporter private[datadog] (c: DatadogAgentReporter.Configurati
     }
 
     config.packetBuffer.flush()
+    
   }
 
   private def encodeDatadogHistogramBucket(value: Long, frequency: Long, unit: MeasurementUnit): String = {
