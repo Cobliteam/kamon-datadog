@@ -80,7 +80,7 @@ class DatadogAgentReporter private[datadog] (c: DatadogAgentReporter.Configurati
     }
 
     config.packetBuffer.flush()
-    
+
   }
 
   private def encodeDatadogHistogramBucket(value: Long, frequency: Long, unit: MeasurementUnit): String = {
