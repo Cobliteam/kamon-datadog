@@ -1,0 +1,24 @@
+image: ivanstoiev/scala-sbt
+
+variables:
+  SBT_OPTS: "-Dsbt.global.base=sbt-cache/sbtboot -Dsbt.boot.directory=sbt-cache/boot -Dsbt.ivy.home=sbt-cache/ivy -Dsbt.repository.config=sbt-cache/repositories"
+
+stages:
+  - test
+
+cache:
+  key: "$CI_COMMIT_REF_SLUG"
+  paths:
+    - "sbt-cache/ivy/cache"
+    - "sbt-cache/boot"
+    - "sbt-cache/sbtboot"
+
+test:
+  tags:
+    - autoscaled
+  stage: test
+  script:
+    - mkdir -p sbt-cache
+    - cp ~/.sbt/repositories sbt-cache/repositories
+    - "sbt +test"
+
