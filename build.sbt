@@ -24,7 +24,6 @@ bintrayOrganization := Some("cobli")
 bintrayRepository := "maven"
 
 
-
 val kamonCore             = "io.kamon"               %% "kamon-core"          % "1.1.2"
 val kamonTestKit          = "io.kamon"               %% "kamon-testkit"       % "1.1.2"
 val asyncHttpClient       = "com.squareup.okhttp3"    % "okhttp"              % "3.10.0"
@@ -54,7 +53,7 @@ def scalaCompact = Def.setting {
   }
 }
 
-/* Changing Kamon configuration in real-time seems to turn tests unstable */ 
+/* Changing Kamon configuration in real-time seems to turn tests unstable */
 parallelExecution in Test := false
 
 def formatSettings(prefs: IFormattingPreferences) = prefs
