@@ -24,14 +24,18 @@ jobs:
     steps:
       - checkout
 
-      # Download and cache dependencies
       - restore_cache:
+          keys:
+            - v1-dependencies-{{ checksum "build.sbt" }}
+            # fallback to using the latest cache if no exact match is found
+            - v1-dependencies-
 
+      # Download and cache dependencies
       - run: cat /dev/null | sbt ++2.12.8 +test
 
       - save_cache:
           paths:
-            - ~/.m2
             - ~/.ivy2/cache
             - ~/.sbt/boot/
+          key: v1-dependencies--{{ checksum "build.sbt" }}
 
